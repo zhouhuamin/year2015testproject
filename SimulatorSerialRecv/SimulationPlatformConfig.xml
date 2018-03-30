@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="GB2312"?>
+<ConfigInfo>
+	<SerialIP>192.168.1.98</SerialIP>
+	<SerialPort>4002</SerialPort>
+	<WcfURL></WcfURL>
+	<LocalPort>505</LocalPort>
+</ConfigInfo>

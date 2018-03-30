@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="95">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <logicalFolder name="HeaderFiles" displayName="头文件" projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="SourceFiles" displayName="源文件" projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="ResourceFiles" displayName="资源文件" projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="TestFiles"
+                   displayName="测试文件"
+                   projectFiles="false"
+                   kind="TEST_LOGICAL_FOLDER">
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="重要文件"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+    <itemPath>BaseDevice.h</itemPath>
+    <itemPath>CRC.cpp</itemPath>
+    <itemPath>CRC.h</itemPath>
+    <itemPath>CascadeCmdHandler.cpp</itemPath>
+    <itemPath>CascadeCmdHandler.h</itemPath>
+    <itemPath>MSGHandleCenter.cpp</itemPath>
+    <itemPath>MSGHandleCenter.h</itemPath>
+    <itemPath>Makefile</itemPath>
+    <itemPath>SysMessage.h</itemPath>
+    <itemPath>SysMutex.cpp</itemPath>
+    <itemPath>SysMutex.h</itemPath>
+    <itemPath>SysUtil.cpp</itemPath>
+    <itemPath>SysUtil.h</itemPath>
+    <itemPath>broadcast.cpp</itemPath>
+    <itemPath>broadcast.h</itemPath>
+    <itemPath>common.cpp</itemPath>
+    <itemPath>common.h</itemPath>
+    <itemPath>config.cpp</itemPath>
+    <itemPath>config.h</itemPath>
+    <itemPath>dev.cpp</itemPath>
+    <itemPath>dev.h</itemPath>
+    <itemPath>includes.h</itemPath>
+    <itemPath>jzLocker.h</itemPath>
+    <itemPath>main.cpp</itemPath>
+    <itemPath>net_handle.cpp</itemPath>
+    <itemPath>packet_format.h</itemPath>
+    <itemPath>port.cpp</itemPath>
+    <itemPath>port.h</itemPath>
+    <itemPath>reader1000api.cpp</itemPath>
+    <itemPath>reader1000api.h</itemPath>
+    <itemPath>starup_handle.cpp</itemPath>
+    <itemPath>starup_handle.h</itemPath>
+  </logicalFolder>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Debug" type="1">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <ccTool>
+          <incDir>
+            <pElem>../../../jiezisoft/tools/ACE_wrappers</pElem>
+          </incDir>
+        </ccTool>
+        <linkerTool>
+          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/broadcastserver</output>
+          <linkerLibItems>
+            <linkerLibLibItem>pthread</linkerLibLibItem>
+            <linkerLibLibItem>xml2</linkerLibLibItem>
+            <linkerLibLibItem>zmq</linkerLibLibItem>
+            <linkerLibLibItem>ACE</linkerLibLibItem>
+          </linkerLibItems>
+        </linkerTool>
+      </compileType>
+      <item path="BaseDevice.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="CRC.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="CRC.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="CascadeCmdHandler.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="CascadeCmdHandler.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="MSGHandleCenter.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="MSGHandleCenter.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Makefile" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="SysMessage.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="SysMutex.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="SysMutex.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="SysUtil.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="SysUtil.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="broadcast.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="broadcast.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="common.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="common.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="config.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="config.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="dev.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="dev.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="includes.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="jzLocker.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="main.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="net_handle.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="packet_format.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="port.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="port.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="reader1000api.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="reader1000api.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="starup_handle.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="starup_handle.h" ex="false" tool="3" flavor2="0">
+      </item>
+    </conf>
+    <conf name="Release" type="1">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <asmTool>
+          <developmentMode>5</developmentMode>
+        </asmTool>
+      </compileType>
+      <item path="BaseDevice.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="CRC.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="CRC.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="CascadeCmdHandler.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="CascadeCmdHandler.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="MSGHandleCenter.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="MSGHandleCenter.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Makefile" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="SysMessage.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="SysMutex.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="SysMutex.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="SysUtil.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="SysUtil.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="broadcast.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="broadcast.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="common.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="common.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="config.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="config.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="dev.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="dev.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="includes.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="jzLocker.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="main.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="net_handle.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="packet_format.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="port.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="port.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="reader1000api.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="reader1000api.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="starup_handle.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="starup_handle.h" ex="false" tool="3" flavor2="0">
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>

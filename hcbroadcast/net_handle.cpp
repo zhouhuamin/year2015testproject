@@ -1,0 +1,497 @@
+#include "SysMessage.h"
+#include "includes.h"
+#include "packet_format.h"
+#include "starup_handle.h"
+#include "port.h"
+#include "broadcast.h"
+#include "jzLocker.h"
+#include <string>
+#include <vector>
+#include <map>
+#include <algorithm>
+#include <iterator>
+
+using namespace std;
+
+NVP_REGISTER reg_unit;
+
+static net_packet_t net_packet;
+static net_packet_head_t packet_head;
+static u8 data_buf[0x800];
+sem	g_StartEventSem;
+sem	g_StoppedEventSem;
+sem	g_BroadcastEventSem;
+
+
+int server_read_timeout(int server_fd, u8 *buf, int len, int timeout);
+int get_one_packet(int net_fd, u8* buf);
+int net_system_CTRL_handle(int server_fd, u8 *buf, int len);
+
+NET_SYS_CTRL sys_ctrl;
+extern volatile u32 DEV_request_count;
+extern void GetCurTime(char *pTime);
+extern struct struDeviceAndServiceStatus g_ObjectStatus;
+extern pthread_mutex_t g_StatusMutex;
+extern label_list_t label_list;
+extern std::map<std::string, strutLabelModifiers> g_LabelMap;
+extern locker       		  g_LabelMapLock;
+extern std::vector<structLedMsg>            g_MsgVect;
+extern locker                              g_MsgVectLock;
+
+static bool bStopFlag = false;
+
+int connect_server(const char *host_name, int port_id)
+{
+	struct sockaddr_in server_addr;
+	struct hostent *host;
+	int sock;
+	int flag;
+
+	host = gethostbyname(host_name);
+	if (NULL == host)
+	{
+		//LOG("get hostname error!\n");
+		syslog(LOG_DEBUG, "get hostname error!\n");
+		return -1;
+	}
+
+	sock = socket(AF_INET, SOCK_STREAM, 0);
+	if (-1 == sock)
+	{
+		//LOG("socket error:%s\a\n!\n", strerror(errno));
+		syslog(LOG_DEBUG, "socket error:%s\a\n!\n", strerror(errno));
+		return -2;
+	}
+
+	bzero(&server_addr, sizeof(server_addr));
+	server_addr.sin_family = AF_INET;
+	server_addr.sin_port = htons(port_id);
+	server_addr.sin_addr = *((struct in_addr *) host->h_addr);
+
+	if (connect(sock, (struct sockaddr *) (&server_addr),
+			sizeof(struct sockaddr_in)) == -1)
+	{
+		//LOG_M("connect error:%s\n", strerror(errno));
+		syslog(LOG_DEBUG, "connect error-3:%s\n", strerror(errno));
+		close(sock);
+		return -3;
+	}
+
+	flag = fcntl(sock, F_GETFL, 0);
+	fcntl(sock, F_SETFL, flag | O_NONBLOCK);
+
+	return sock;
+}
+
+void *net_handle_thread(void *arg)
+{
+	volatile int net_disconnected = 0;
+	int ret;
+	int server_fd2 = 0;
+
+	while (1)
+	{
+		upload_data_handle(server_fd2);
+	}
+
+	close(server_fd2);
+}
+
+//dev login server
+int net_dev_register_handle(int server_fd)
+{
+	NVP_REGISTER *p_reg;
+	NVP_REGISTER_ACK *p_reg_ack;
+	char str_tmp[16];
+	int w_len, r_len;
+	int ret;
+
+	packet_head.msg_type = MSG_TYPE_DEV_REGISTER;
+	packet_head.packet_len = sizeof(NVP_REGISTER);
+	strcpy(packet_head.szVersion, "1.0");
+
+	strcpy((char *) data_buf, "0XJZTECH");
+	memcpy(data_buf + 8, &packet_head, sizeof(net_packet_head_t));
+	p_reg = (NVP_REGISTER *) (data_buf + 8 + sizeof(net_packet_head_t));
+
+	strcpy(p_reg->dev_tag, gSetting_system.register_DEV_TAG);
+	strcpy(p_reg->dev_id, gSetting_system.register_DEV_ID);
+
+	w_len = sizeof(net_packet_head_t) + sizeof(NVP_REGISTER) + 8;
+	strcpy((char *) (data_buf + w_len), "NJTECHJZ");
+	w_len += 8;
+
+	//tcflush(server_fd, TCIFLUSH);
+	ret = write(server_fd, data_buf, w_len);
+
+	if (ret != w_len)
+	{
+		//LOG_M("write data error! %d\n", ret);
+		syslog(LOG_DEBUG, "write data error! %d\n", ret);
+		return -1;
+	}
+
+	r_len = 8 + sizeof(net_packet_head_t) + sizeof(NVP_REGISTER_ACK) + 8;
+	ret = server_read_timeout(server_fd, data_buf, r_len, 500);
+	if (ret != r_len)
+	{
+		//LOG("get register ack r_len is error! %d\n", ret);
+		syslog(LOG_DEBUG, "get register ack r_len is error! %d\n", ret);
+		return -2;
+	}
+
+	memcpy(str_tmp, data_buf, 8);
+	str_tmp[8] = 0;
+	if (strcmp(str_tmp, NET_PACKET_HEAD_STRING))
+	{
+		//LOG("head string check error!\n");
+		syslog(LOG_DEBUG, "head string check error!\n");
+		return -3;
+	}
+
+	memcpy(str_tmp, data_buf + r_len - 8, 8);
+	str_tmp[8] = 0;
+	if (strcmp(str_tmp, NET_PACKET_TAIL_STRING))
+	{
+		//LOG("tail string check error!\n");
+		syslog(LOG_DEBUG, "tail string check error!\n");
+		return -4;
+	}
+
+	memcpy(&packet_head, data_buf + 8, sizeof(net_packet_head_t));
+	if ((packet_head.msg_type != MSG_TYPE_DEV_REGISTER_ACK)
+			|| (packet_head.packet_len != sizeof(NVP_REGISTER_ACK)))
+	{
+		//LOG_M("packer_len =%d\n", packet_head.packet_len);
+		syslog(LOG_DEBUG, "packer_len =%d\n", packet_head.packet_len);
+		return -5;
+
+	}
+
+	p_reg_ack = (NVP_REGISTER_ACK*) (data_buf + sizeof(net_packet_head_t) + 8);
+	if (0 == p_reg_ack->reg_result)
+	{
+		gReal_system.dev_register_flag = 1;
+		gReal_system.work_flag = p_reg_ack->next_action;
+	}
+	else
+	{
+		//LOG("dev register error!\n");
+		syslog(LOG_DEBUG, "dev register error!\n");
+	}
+
+	//LOG_M("result: %d, action: %d", p_reg_ack->reg_result, p_reg_ack->next_action);
+	syslog(LOG_DEBUG, "result: %d, action: %d", p_reg_ack->reg_result,
+			p_reg_ack->next_action);
+	return 0;
+}
+
+int net_dev_keeplive_handle(int server_fd)
+{
+	static u32 keeplive_trig_systick = 0;
+	int w_len;
+	int ret;
+
+	if ((get_system_ms() - keeplive_trig_systick)
+			< gSetting_system.keeplive_gap)
+	{
+		return 0;
+	}
+
+	if (dev_unit.dev_keeplive_cnt >= 11)
+	{
+		if (dev_unit.dev_keeplive_ACK_cnt <= 0)
+		{
+			return -1;
+		}
+		dev_unit.dev_keeplive_cnt = 0;
+		dev_unit.dev_keeplive_ACK_cnt = 0;
+	}
+
+	keeplive_trig_systick = get_system_ms();
+
+	packet_head.msg_type = MSG_TYPE_KEEP_LIVE;
+	packet_head.packet_len = 0;
+	strcpy(packet_head.szVersion, "1.0");
+
+	strcpy((char *) data_buf, NET_PACKET_HEAD_STRING);
+	memcpy(data_buf + NET_PACKET_HEAD_STRING_LEN, &packet_head,
+			sizeof(net_packet_head_t));
+
+	w_len = sizeof(net_packet_head_t) + NET_PACKET_HEAD_STRING_LEN;
+
+	strcpy((char*) (data_buf + w_len), NET_PACKET_TAIL_STRING);
+	w_len += NET_PACKET_TAIL_STRING_LEN;
+
+	tcflush(server_fd, TCIFLUSH);
+	ret = write(server_fd, data_buf, w_len);
+	if (ret != w_len)
+	{
+		//LOG_M("write data error! %d\n", ret);
+		syslog(LOG_DEBUG, "write data error! %d\n", ret);
+	}
+
+	dev_unit.dev_keeplive_cnt++;
+
+	//LOG("keep live trigger!\n");
+	syslog(LOG_DEBUG, "keep live trigger!\n");
+
+	return 0;
+}
+
+int server_read_timeout(int server_fd, u8 *buf, int len, int time_out)
+{
+	int ret;
+	int r_len = 0;
+	int nOldTimeOut = time_out;
+
+	while (1)
+	{
+		ret = read(server_fd, buf + r_len, len - r_len);
+
+		if (ret > 0)
+		{
+			r_len += ret;
+			break;
+		}
+		else if (ret == 0) //server close
+		{
+			return -99;
+		}
+
+		if (errno == 0)
+			return -99;
+		if (errno == EAGAIN)
+		{
+			usleep(50 * 1000);
+			//usleep(1 * 1000);
+			time_out--;
+			if (time_out <= 0)
+			{
+				//time_out = nOldTimeOut;
+				r_len = 0;
+				break;
+			}
+			continue;
+		}
+	}
+
+	return r_len;
+}
+
+int upload_data_handle(int server_fd)
+{
+    eMsg_type CMD;
+
+    int ret = 0;
+
+    do
+    {
+        ret = recv_msg_from_dev(&CMD);
+        syslog(LOG_DEBUG, "recv_msg_from_dev:ret:%d, CMD:%d\n", ret, CMD);
+        if (ret > 0)
+        {
+            {
+                if (msg_DEV_NEW_DATA == CMD) //new data
+                {
+                    syslog(LOG_DEBUG, "DEV_request_count:%d,%d,%d\n", DEV_request_count, dev_unit.dev_scan_count,dev_unit.read_request_respond_flag);
+                    if (DEV_request_count != dev_unit.dev_scan_count)
+                    {
+                        //if (0 == dev_unit.read_request_respond_flag)
+                        {
+
+                                xml_upload_gather_data(server_fd);
+                                dev_unit.read_request_respond_flag = 1;
+                        }
+                    }
+                    else
+                    {
+                            xml_upload_arrived_data(server_fd);
+                    }
+                }
+                else if (msg_WT_THRESHOLD == CMD)
+                {
+                    if (DEV_request_count == dev_unit.dev_scan_count)
+                    {
+                            xml_upload_threshold(server_fd);
+                    }
+                }
+            }
+        }
+        usleep(50 * 1000);
+    } while (ret > 0);
+
+    return 0;
+}
+
+//字符串分割函数
+vector<string> split( string str, string pattern)
+{
+    vector<string> ret;
+    if(pattern.empty()) 
+    {
+        return ret;
+    }
+    
+    size_t start=0,index=str.find_first_of(pattern,0);
+    while(index!=str.npos)
+    {
+        if(start!=index)
+        {
+            ret.push_back(str.substr(start,index-start));
+        }
+        
+        start=index+1;
+        index=str.find_first_of(pattern,start);
+    }
+    
+    if(!str.substr(start).empty())
+    {
+        ret.push_back(str.substr(start));
+    }
+    
+    return ret;
+}
+
+int net_system_CTRL_handle(int server_fd, u8 *buf, int len)
+{
+    if (buf == NULL)
+        return 0;
+    
+    NET_SYS_CTRL    *pFirst = NULL;
+    NET_PACKET_MSG *p_ctrl  = NULL;
+
+    p_ctrl = (NET_PACKET_MSG*) buf;
+    pFirst = (NET_SYS_CTRL*)p_ctrl->msg_body;
+    
+    string strRing = gSetting_system.SYS_CTRL_ring_event_ID;
+    vector<string> strArray = split(strRing,"|");
+    if (!strcmp(p_ctrl->msg_body, gSetting_system.SYS_CTRL_brt_event_ID))
+    {
+        syslog(LOG_DEBUG, "ASK:\tBRT BRT!\n");
+        if(!bStopFlag)
+        {
+            xml_system_ctrl_hook(pFirst->xml_data, pFirst->xml_data_len);
+        }
+    }
+    else if (!strcmp(p_ctrl->msg_body, gSetting_system.SYS_CTRL_start_event_ID))
+    {
+        syslog(LOG_DEBUG, "ASK:\tStart BRT!\n");       
+        bStopFlag = false;
+    }
+    else if (!strcmp(p_ctrl->msg_body, gSetting_system.SYS_CTRL_stop_event_ID))
+    {
+        syslog(LOG_DEBUG, "ASK:\tStop BRT!\n");       
+        //g_StoppedEventSem.post();
+        bStopFlag = true;
+    }
+    else if (!strcmp(p_ctrl->msg_body, "EC_SUCCESS_IC"))
+    {
+        syslog(LOG_DEBUG, "ASK:\tEC_SUCCESS_IC!\n");
+        if(!bStopFlag)
+        {
+            structLedMsg tmpMsg;
+            tmpMsg.id       = 6;
+            tmpMsg.strMsg   = "";
+            g_MsgVectLock.lock();
+            g_MsgVect.push_back(tmpMsg);
+            g_MsgVectLock.unlock();
+            g_BroadcastEventSem.post();
+        }
+    }
+    else if (!strcmp(p_ctrl->msg_body, strArray[0].c_str()))
+    {
+        syslog(LOG_DEBUG, "ASK:\tRing Ring %s!\n", strArray[0].c_str());
+        if(!bStopFlag)
+        {
+            structLedMsg tmpMsg;
+            tmpMsg.id       = atoi(strArray[1].c_str());
+            tmpMsg.strMsg   = "";
+            g_MsgVectLock.lock();
+            g_MsgVect.push_back(tmpMsg);
+            g_MsgVectLock.unlock();
+            g_BroadcastEventSem.post();
+        }
+    }    
+    else
+    {
+        syslog(LOG_DEBUG, "system ctrl id= %s\n", p_ctrl->msg_body);
+    }
+
+    return 0;
+}
+
+//get a packet
+//return value: 0:no data; >0: get packet -1:server close -2:error
+int get_one_packet(int net_fd, u8* buf)
+{
+	int ret, r_len = 0;
+	net_packet_head_t msg_head;
+	char str_tmp[16];
+
+	ret = server_read_timeout(net_fd, buf, sizeof(net_packet_head_t) + 8, 10);
+	if (0 >= ret)
+	{
+		return ret;
+	}
+	else if (ret != (sizeof(net_packet_head_t) + 8))
+	{
+		//printf("get str head len error!	%s\n", str_tmp);
+		syslog(LOG_DEBUG, "get str head len error!	%s\n", str_tmp);
+		return -2;
+	}
+
+	memcpy(str_tmp, buf, 8);
+	str_tmp[8] = 0;
+	if (strcmp((char*) str_tmp, "0XJZTECH"))
+	{
+		//printf("str head check error!\n");
+		syslog(LOG_DEBUG, "str head check error!\n");
+		return -2;
+	}
+	memcpy(&msg_head, buf + 8, sizeof(net_packet_head_t));
+	r_len = sizeof(net_packet_head_t) + 8;
+
+	if (msg_head.packet_len > 0)
+	{
+		ret = server_read_timeout(net_fd, buf + r_len, msg_head.packet_len, 10);
+		if (0 >= ret)
+		{
+			return ret;
+		}
+		else if (ret != msg_head.packet_len)
+		{
+			//printf("get msg body len error!\n");
+			syslog(LOG_DEBUG, "get msg body len error!\n");
+			return -2;
+		}
+		r_len += msg_head.packet_len;
+	}
+
+	ret = server_read_timeout(net_fd, buf + r_len, 8, 10);
+	if (0 >= ret)
+	{
+		return ret;
+	}
+	else if (ret != 8)
+	{
+		//printf("get str tail len error!\n");
+		syslog(LOG_DEBUG, "get str tail len error!\n");
+		return -2;
+	}
+
+	memcpy(str_tmp, buf + r_len, 8);
+	str_tmp[8] = 0;
+	if (strcmp(str_tmp, "NJTECHJZ"))
+	{
+		//printf("str tail check error!\n");
+		syslog(LOG_DEBUG, "str tail check error!\n");
+		return -2;
+	}
+
+	r_len += 8;
+
+	return r_len;
+}
+
+

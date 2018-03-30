@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="GB2312"?>
+<ConfigInfo>
+	<KaKouIP>192.168.1.130</KaKouIP>
+	<KaKouPort>9002</KaKouPort>
+	<WcfURL></WcfURL>
+	<LocalPort>9001</LocalPort>
+</ConfigInfo>
