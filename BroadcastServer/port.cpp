@@ -51,18 +51,18 @@ void system_setting_verify(void)
 		exit(-1);
 	}
 
-//	if (0 > gSetting_system.DEV_scan_gap)
-//	{
-//		perror("DEV SCAN GAP TIME error!\nPlease check <DEV_SCAN_GAP>\n");
-//		exit(-1);
-//	}
+	//	if (0 > gSetting_system.DEV_scan_gap)
+	//	{
+	//		perror("DEV SCAN GAP TIME error!\nPlease check <DEV_SCAN_GAP>\n");
+	//		exit(-1);
+	//	}
 
-//	if (0 > gSetting_system.DEV_scan_duration_time)
-//	{
-//		perror(
-//				"DEV DURATION TIME error!\nPlease check <DEV_SCAN_DURATION_TIME>\n");
-//		exit(-1);
-//	}
+	//	if (0 > gSetting_system.DEV_scan_duration_time)
+	//	{
+	//		perror(
+	//				"DEV DURATION TIME error!\nPlease check <DEV_SCAN_DURATION_TIME>\n");
+	//		exit(-1);
+	//	}
 
 	if (1 > strlen(gSetting_system.register_DEV_TAG))
 	{
@@ -90,84 +90,84 @@ void system_setting_verify(void)
 		exit(-1);
 	}
 
-//	if (1 > strlen(gSetting_system.SYS_CTRL_R_stop_event_ID))
-//	{
-//		perror(
-//				"SYS CTRL STOP error!\nPlease check <SYS_CTRL_R_STOP_EVENT_ID>\n");
-//		exit(-1);
-//	}
-//
-//	if (1 > strlen(gSetting_system.gather_event_id))
-//	{
-//		perror("GATHER DEV ID error!\nPlease check <GATHER_DATA_EVENT_ID>\n");
-//		exit(-1);
-//	}
-//
-//	if (1 > strlen(gSetting_system.gather_DEV_TAG))
-//	{
-//		perror("GATHER DEV TAG error!\nPlease check <GATHER_DATA_DEV_TAG>\n");
-//		exit(-1);
-//	}
-//
-//	if (1 > strlen(gSetting_system.arrived_DEV_event_id))
-//	{
-//		perror(
-//				"ARRIVED DEV EVENT ID error!\nPlease check <ARRIVED_DEV_EVENT_ID>\n");
-//		exit(-1);
-//	}
-//
-//	if (1 > strlen(gSetting_system.onload_event_id))
-//	{
-//		perror("ONLOAD EVENT ID error!\nPlease check <ONLOAD_DEV_EVENT_ID>\n");
-//		exit(-1);
-//	}
-//
-//	if (0 > gSetting_system.RFID_label_type)
-//	{
-//		perror("RFID LABEL TYPE error!\nPlease check <RFID_LABEL_TYPE>\n");
-//		exit(-1);
-//	}
-//
-//	if (0 > gSetting_system.IC_read_block_NO)
-//	{
-//		perror("IC CARD BLOCK NO error!\nPlease check <IC_READ_BLOCK_NO>\n");
-//		exit(-1);
-//	}
-//
-//	if (1 > gSetting_system.WT_protocol_head_len)
-//	{
-//		perror(
-//				"WT PROTOCOL HEAD NO error!\nPlease check <WT_DEV_PROTOCOL_HEAD>\n");
-//		exit(-1);
-//	}
-//
-//	if (1 > gSetting_system.WT_protcol_value_bytes)
-//	{
-//		perror("WT VALUE BYTES error!\nPlease check <WT_DEV_VA"
-//				"LUE_BYTES>\n");
-//		exit(-1);
-//	}
-//
-//	if (1 > gSetting_system.WT_protocol_tail_len)
-//	{
-//		perror(
-//				"WT PROTOCOL TAIL NO error!\nPlease check <WT_DEV_PROTOCOL_TAIL>\n");
-//		exit(-1);
-//	}
-//
-//	if (0 > gSetting_system.WT_threshold_value)
-//	{
-//		perror(
-//				"WT THRESHOLD VALUE error!\nPlease check <WT_THRESHOLD_VALUE>\n");
-//		exit(-1);
-//	}
-//
-//	if (0 > gSetting_system.WT_average_diff_value)
-//	{
-//		perror(
-//				"WT AVERAGE DIFF VALUE error!\nPlease check <WT_AVERAGE_DIFF_VALUE>\n");
-//		exit(-1);
-//	}
+	//	if (1 > strlen(gSetting_system.SYS_CTRL_R_stop_event_ID))
+	//	{
+	//		perror(
+	//				"SYS CTRL STOP error!\nPlease check <SYS_CTRL_R_STOP_EVENT_ID>\n");
+	//		exit(-1);
+	//	}
+	//
+	//	if (1 > strlen(gSetting_system.gather_event_id))
+	//	{
+	//		perror("GATHER DEV ID error!\nPlease check <GATHER_DATA_EVENT_ID>\n");
+	//		exit(-1);
+	//	}
+	//
+	//	if (1 > strlen(gSetting_system.gather_DEV_TAG))
+	//	{
+	//		perror("GATHER DEV TAG error!\nPlease check <GATHER_DATA_DEV_TAG>\n");
+	//		exit(-1);
+	//	}
+	//
+	//	if (1 > strlen(gSetting_system.arrived_DEV_event_id))
+	//	{
+	//		perror(
+	//				"ARRIVED DEV EVENT ID error!\nPlease check <ARRIVED_DEV_EVENT_ID>\n");
+	//		exit(-1);
+	//	}
+	//
+	//	if (1 > strlen(gSetting_system.onload_event_id))
+	//	{
+	//		perror("ONLOAD EVENT ID error!\nPlease check <ONLOAD_DEV_EVENT_ID>\n");
+	//		exit(-1);
+	//	}
+	//
+	//	if (0 > gSetting_system.RFID_label_type)
+	//	{
+	//		perror("RFID LABEL TYPE error!\nPlease check <RFID_LABEL_TYPE>\n");
+	//		exit(-1);
+	//	}
+	//
+	//	if (0 > gSetting_system.IC_read_block_NO)
+	//	{
+	//		perror("IC CARD BLOCK NO error!\nPlease check <IC_READ_BLOCK_NO>\n");
+	//		exit(-1);
+	//	}
+	//
+	//	if (1 > gSetting_system.WT_protocol_head_len)
+	//	{
+	//		perror(
+	//				"WT PROTOCOL HEAD NO error!\nPlease check <WT_DEV_PROTOCOL_HEAD>\n");
+	//		exit(-1);
+	//	}
+	//
+	//	if (1 > gSetting_system.WT_protcol_value_bytes)
+	//	{
+	//		perror("WT VALUE BYTES error!\nPlease check <WT_DEV_VA"
+	//				"LUE_BYTES>\n");
+	//		exit(-1);
+	//	}
+	//
+	//	if (1 > gSetting_system.WT_protocol_tail_len)
+	//	{
+	//		perror(
+	//				"WT PROTOCOL TAIL NO error!\nPlease check <WT_DEV_PROTOCOL_TAIL>\n");
+	//		exit(-1);
+	//	}
+	//
+	//	if (0 > gSetting_system.WT_threshold_value)
+	//	{
+	//		perror(
+	//				"WT THRESHOLD VALUE error!\nPlease check <WT_THRESHOLD_VALUE>\n");
+	//		exit(-1);
+	//	}
+	//
+	//	if (0 > gSetting_system.WT_average_diff_value)
+	//	{
+	//		perror(
+	//				"WT AVERAGE DIFF VALUE error!\nPlease check <WT_AVERAGE_DIFF_VALUE>\n");
+	//		exit(-1);
+	//	}
 }
 
 int xml_system_ctrl_hook(char *xml_buf, int xml_buf_len)
